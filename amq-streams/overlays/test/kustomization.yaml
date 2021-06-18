@@ -1,0 +1,4 @@
+namespace: bgd
+resources:
+- ../../default
+- namespace.yaml

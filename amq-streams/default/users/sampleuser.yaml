@@ -1,0 +1,58 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: sampleuser
+  labels:
+    strimzi.io/cluster: single-node-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: mini.topic
+          patternType: literal
+        operation: Read
+        host: "*"
+      - resource:
+          type: topic
+          name: mini.topic
+          patternType: literal
+        operation: Describe
+        host: "*"
+      - resource:
+          type: topic
+          name: datacenter
+          patternType: prefix
+        operation: Read
+        host: "*"
+      - resource:
+          type: topic
+          name: datacenter
+          patternType: prefix
+        operation: Describe
+        host: "*"
+      - resource:
+          type: topic
+          name: mini.topic
+          patternType: literal
+        operation: Write
+        host: "*"
+      - resource:
+          type: topic
+          name: mini.topic
+          patternType: literal
+        operation: Create
+        host: "*"
+      - resource:
+          type: group
+          name: sample-group
+          patternType: literal
+        operation: Read
+        host: "*"
+  quotas:
+    producerByteRate: 1048576
+    consumerByteRate: 2097152
+    requestPercentage: 55

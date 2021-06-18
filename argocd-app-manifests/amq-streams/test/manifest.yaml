@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: amq-streams-test
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: amq-streams-test
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: amq-streams/overlays/test
+    repoURL: https://github.com/ryanezil/amqstreams-argocd
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
