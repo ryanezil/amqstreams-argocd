@@ -1,5 +1,7 @@
 # amqstreams-argocd
 
+This demo deploys a very small AMQ Streams cluster (one single ZK and one single Kafka with low resources comsumption) using ArgoCD.
+
 ## Install operators
 
 After RH OpenShift GitOps operator is installed, you can find a new project recently created:
@@ -123,3 +125,33 @@ DXsdeiAbgrIzh3wtFcH1Sfmy2OV40MkR
 $ oc apply -f argocd-app-manifests/amq-streams/test/manifest.yaml
 ```
 
+Check deployed Manifest:
+
+```bash
+$ argocd app manifests amq-streams-test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/instance: amq-streams-test
+  name: amq-streams-test
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  labels:
+    app.kubernetes.io/instance: amq-streams-test
+  name: single-node-cluster
+  namespace: amq-streams-test
+spec:
+  entityOperator:
+    tlsSidecar:
+      resources:
+        limits:
+          :
+          :
+          :
+          :
+```
