@@ -1,4 +1,4 @@
-namespace: bgd
+namespace: amq-streams-test
 resources:
-- ../../default
 - namespace.yaml
+- ../../default
