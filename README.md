@@ -36,6 +36,20 @@ openshift-gitops-repo-server-7c46884cf6-vn5rm               1/1     Running   0 
 openshift-gitops-server-7975f7b985-rf4p2                    1/1     Running   0          17m
 ```
 
+### Configure ArgoCD ServiceAccount
+
+Allow the serviceAccount for ArgoCD the ability to manage the cluster:
+
+```bash
+$ oc adm policy add-cluster-role-to-user cluster-admin -z openshift-gitops-argocd-application-controller -n openshift-gitops
+```
+
+You will see an error like this in ArgoCD if you don't exec this step:
+
+```bash
+kafkas.kafka.strimzi.io is forbidden: User "system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller" cannot create resource "kafkas" in API group "kafka.strimzi.io" in the namespace "amq-streams-test"
+```
+
 ## Configure ArgoCD
 
 ### Install CLI
