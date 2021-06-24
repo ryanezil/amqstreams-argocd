@@ -7,10 +7,11 @@ spec:
   destination:
     namespace: amq-streams-test
     server: https://kubernetes.default.svc
+  # Target ArgoCD project where the application will be created
   project: default
   source:
     path: amq-streams/overlays/test
-    repoURL: https://github.com/ryanezil/amqstreams-argocd
+    repoURL: https://github.com/ryanezil/amqstreams-argocd.git
     targetRevision: main
   syncPolicy:
     automated:

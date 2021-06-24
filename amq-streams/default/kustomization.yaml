@@ -1,3 +1,4 @@
 namespace: develop
 resources:
 - cluster.yaml
+- ./users/superuser.yaml
