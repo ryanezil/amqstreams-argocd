@@ -292,17 +292,7 @@ Out of Scope
 
 ## Deploy AMQ Streams Environments
 
-Name:                        default
-Description:                 
-Destinations:                *,*
-Repositories:                *
-Allowed Cluster Resources:   */*
-Denied Namespaced Resources: <none>
-Signature keys:              <none>
-Orphaned Resources:          disabled
-
-
-1. Create new ArgoCD project.
+1. Create two ArgoCD projects: DEV and TEST.
 
     The following commands create two new projects with the same configuration as the 'default' project.
 
@@ -328,12 +318,22 @@ Orphaned Resources:          disabled
 2. Check project information
 
     ```bash
-    $ argocd proj get amq-streams-test
+    $ argocd proj get amq-streams-dev
+
+    Name:                        amq-streams-dev
+    Description:                 AMQ Streams DEV
+    Destinations:                *,*
+    Repositories:                *
+    Allowed Cluster Resources:   */*
+    Denied Namespaced Resources: <none>
+    Signature keys:              <none>
+    Orphaned Resources:          disabled
     ```
 
 3. Deploy AMQ Streams clusters
 
     ```bash
+    # AMQ Streams DEV cluster
     $ argocd app create \
       --name amq-streams-dev \
       --dest-namespace amq-streams-dev \
@@ -341,11 +341,12 @@ Orphaned Resources:          disabled
       --project amq-streams-dev \
       --repo https://github.com/ryanezil/amqstreams-argocd.git \
       --path amq-streams/overlays/dev \
-      --revision main \
+      --revision develop \
       --sync-policy automated \
       --auto-prune \
       --sync-option CreateNamespace=true
 
+    # AMQ Streams TEST cluster
     $ argocd app create \
       --name amq-streams-test \
       --dest-namespace amq-streams-test \
@@ -361,20 +362,24 @@ Orphaned Resources:          disabled
 
 ## Managing Users and Topics
 
-How to manage users and topics, for every different application working with AMQ Streams.
+This section shows how to manage users and topics used by every different application producing and consuming messages.
 
 Now the parameter ```--sync-option CreateNamespace=true``` is not used: target namespace must be created when the cluster is deployed.
 
 ### Test environment
 
+Only ```Application 1``` is available in TEST.
+
+> The ```revision```parameter points to the Git branch ```main``` (you could use a Tag, instead).
+
 * **Application 1 resources**
 
 ```bash
 $ argocd app create \
-  --name amq-streams-test-application1 \
+  --name amq-streams-application1 \
   --dest-namespace amq-streams-test \
   --dest-server https://kubernetes.default.svc \
-  --project default \
+  --project amq-streams-test \
   --repo https://github.com/ryanezil/amqstreams-argocd.git \
   --path amq-streams-applications/application1 \
   --directory-recurse \
@@ -383,19 +388,40 @@ $ argocd app create \
   --auto-prune
 ```
 
-* **Application 2 resources**
+### Develop environment
+
+Both ```Application 1``` and ```Application 2``` are available in DEVELOP. Additionally, Aplication1 has one more user created in this environment, that is not created in TEST.
+
+> The ```revision```parameter points to the Git branch ```develop```.
+
+* **Application 1 resources**
 
 ```bash
 $ argocd app create \
-  --name amq-streams-test-application2 \
-  --dest-namespace amq-streams-test \
+  --name amq-streams-application1 \
+  --dest-namespace amq-streams-dev \
   --dest-server https://kubernetes.default.svc \
-  --project default \
+  --project amq-streams-dev \
   --repo https://github.com/ryanezil/amqstreams-argocd.git \
-  --path amq-streams-applications/application2 \
+  --path amq-streams-applications/application1 \
   --directory-recurse \
-  --revision main \
+  --revision develop \
   --sync-policy automated \
   --auto-prune
 ```
 
+* **Application 2 resources**
+
+```bash
+$ argocd app create \
+  --name amq-streams-application2 \
+  --dest-namespace amq-streams-dev \
+  --dest-server https://kubernetes.default.svc \
+  --project amq-streams-dev \
+  --repo https://github.com/ryanezil/amqstreams-argocd.git \
+  --path amq-streams-applications/application2 \
+  --directory-recurse \
+  --revision develop \
+  --sync-policy automated \
+  --auto-prune
+```
