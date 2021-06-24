@@ -1,6 +1,14 @@
 # amqstreams-argocd
 
-This demo deploys a very small AMQ Streams cluster (one single ZK and one single Kafka with low resources comsumption) using ArgoCD.
+This project shows a quick start guide using Argo CD, deploying a very small AMQ Streams cluster (one single ZK and one single Kafka) using ArgoCD on OpenShift.
+
+Also a basic approach for managing two clusters and different application resources is included.
+
+Since v2.0, Argo CD includes health checks for Strimzi CRDs:
+* Kafka
+* KafkaTopic
+* KafkaUser
+* KafkaConnect
 
 ## Install operators
 
