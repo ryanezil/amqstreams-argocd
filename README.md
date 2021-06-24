@@ -128,185 +128,236 @@ DXsdeiAbgrIzh3wtFcH1Sfmy2OV40MkR
 
 ### Deploy using an Application Manifest
 
-You need to create a manifest file containing all the application definition:
+1. Create the application manifest file
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: amq-streams-test
-  namespace: openshift-gitops
-spec:
-  destination:
-    namespace: amq-streams-test
-    server: https://kubernetes.default.svc
-  project: default
-  source:
-    path: amq-streams/overlays/test
-    repoURL: https://github.com/ryanezil/amqstreams-argocd
-    targetRevision: main
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
-    syncOptions:
-    - CreateNamespace=true
-```
+    You need to create a manifest file containing all the application definition:
 
-Then, apply the manifest:
+    ```yaml
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: amq-streams-test
+      namespace: openshift-gitops
+    spec:
+      destination:
+        namespace: amq-streams-test
+        server: https://kubernetes.default.svc
+      project: default
+      source:
+        path: amq-streams/overlays/test
+        repoURL: https://github.com/ryanezil/amqstreams-argocd
+        targetRevision: main
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: false
+        syncOptions:
+        - CreateNamespace=true
+    ```
 
-```bash
-$ oc apply -f argocd-app-manifests/amq-streams/test/manifest.yaml
-```
+2. Apply the manifest:
 
-Check deployed Manifest:
+    ```bash
+    $ oc apply -f argocd-app-manifests/amq-streams/test/manifest.yaml
+    ```
 
-```bash
-$ argocd app manifests amq-streams-test
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    app.kubernetes.io/instance: amq-streams-test
-  name: amq-streams-test
+3. Check deployed Manifest:
 
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: Kafka
-metadata:
-  labels:
-    app.kubernetes.io/instance: amq-streams-test
-  name: single-node-cluster
-  namespace: amq-streams-test
-spec:
-  entityOperator:
-    tlsSidecar:
-      resources:
-        limits:
-          :
-          :
-          :
-          :
-```
+    ```bash
+    $ argocd app manifests amq-streams-test
+    ---
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      labels:
+        app.kubernetes.io/instance: amq-streams-test
+      name: amq-streams-test
 
-4. Check the application status
+    ---
+    apiVersion: kafka.strimzi.io/v1beta2
+    kind: Kafka
+    metadata:
+      labels:
+        app.kubernetes.io/instance: amq-streams-test
+      name: single-node-cluster
+      namespace: amq-streams-test
+    spec:
+      entityOperator:
+        tlsSidecar:
+          resources:
+            limits:
+              :
+              :
+              :
+              :
+    ```
 
-```bash
-$ argocd app get amq-streams-test
-```
+    Now you can check the application status
 
-### Deploy using CLI
+    ```bash
+    $ argocd app get amq-streams-test
+    ```
+
+4. Clean and remove the entire application
+
+    ```bash
+    $ oc delete application amq-streams-test -n openshift-gitops
+
+    application.argoproj.io "amq-streams-test" deleted
+    ```
+
+### Deploy using CLI commands
+
+The following steps show hot to deploy an application using the command line.
 
 1. Add remote application repository to ArgoCD
 
-```bash
-$ argocd repo add https://github.com/ryanezil/amqstreams-argocd.git
+    ```bash
+    $ argocd repo add https://github.com/ryanezil/amqstreams-argocd.git
 
-Repository 'https://github.com/ryanezil/amqstreams-argocd.git' added
-```
+    Repository 'https://github.com/ryanezil/amqstreams-argocd.git' added
+    ```
 
 2. Check the repo has been added:
 
-```bash
-$ argocd repo list
+    ```bash
+    $ argocd repo list
 
-TYPE  NAME  REPO                                               INSECURE  OCI    LFS    CREDS  STATUS      MESSAGE
-git         https://github.com/ryanezil/amqstreams-argocd.git  false     false  false  false  Successful
-```
+    TYPE  NAME  REPO                                               INSECURE  OCI    LFS    CREDS  STATUS      MESSAGE
+    git         https://github.com/ryanezil/amqstreams-argocd.git  false     false  false  false  Successful
+    ```
 
 3. Create the application
 
-You can see detailed parameters and example for this action, usin the command help:
+    You can see detailed parameters and example for this action, usin the command help:
 
-```bash
-$ argocd app create --help
-```
+    ```bash
+    $ argocd app create --help
+    ```
 
-The following CLI command will deploy the same application configuration that is defined above, in the Application Manifest.
+    The following CLI command will deploy the same application configuration that is defined above, in the Application Manifest.
 
-```bash
-$ argocd app create \
-  --name amq-streams-test \
-  --dest-namespace amq-streams-test \
-  --dest-server https://kubernetes.default.svc \
-  --project default \
-  --repo https://github.com/ryanezil/amqstreams-argocd.git \
-  --path amq-streams/overlays/test \
-  --revision main \
-  --sync-policy automated \
-  --auto-prune \
-  --sync-option CreateNamespace=true
+    ```bash
+    $ argocd app create \
+      --name amq-streams-test \
+      --dest-namespace amq-streams-test \
+      --dest-server https://kubernetes.default.svc \
+      --project default \
+      --repo https://github.com/ryanezil/amqstreams-argocd.git \
+      --path amq-streams/overlays/test \
+      --revision main \
+      --sync-policy automated \
+      --auto-prune \
+      --sync-option CreateNamespace=true
 
 
-application 'amq-streams-test' created
-```
+    application 'amq-streams-test' created
+    ```
 
 4. Check the application status
 
-```bash
-$ argocd app get amq-streams-test
+    ```bash
+    $ argocd app get amq-streams-test
 
-Name:               amq-streams-test
-Project:            default
-Server:             https://kubernetes.default.svc
-Namespace:          amq-streams-test
-URL:                https://openshift-gitops-server-openshift-gitops.apps-crc.testing/applications/amq-streams-test
-Repo:               https://github.com/ryanezil/amqstreams-argocd.git
-Target:             main
-Path:               amq-streams/overlays/test
-SyncWindow:         Sync Allowed
-Sync Policy:        Automated (Prune)
-Sync Status:        Synced to main (35d5af0)
-Health Status:      Healthy
+    Name:               amq-streams-test
+    Project:            default
+    Server:             https://kubernetes.default.svc
+    Namespace:          amq-streams-test
+    URL:                https://openshift-gitops-server-openshift-gitops.apps-crc.testing/applications/amq-streams-test
+    Repo:               https://github.com/ryanezil/amqstreams-argocd.git
+    Target:             main
+    Path:               amq-streams/overlays/test
+    SyncWindow:         Sync Allowed
+    Sync Policy:        Automated (Prune)
+    Sync Status:        Synced to main (35d5af0)
+    Health Status:      Healthy
 
-GROUP             KIND       NAMESPACE         NAME                 STATUS   HEALTH   HOOK  MESSAGE
-                  Namespace  amq-streams-test  amq-streams-test     Running  Synced         namespace/amq-streams-test created
-kafka.strimzi.io  Kafka      amq-streams-test  single-node-cluster  Synced   Healthy        kafka.kafka.strimzi.io/single-node-cluster created
-                  Namespace                    amq-streams-test     Synced
-```
+    GROUP             KIND       NAMESPACE         NAME                 STATUS   HEALTH   HOOK  MESSAGE
+                      Namespace  amq-streams-test  amq-streams-test     Running  Synced         namespace/amq-streams-test created
+    kafka.strimzi.io  Kafka      amq-streams-test  single-node-cluster  Synced   Healthy        kafka.kafka.strimzi.io/single-node-cluster created
+                      Namespace                    amq-streams-test     Synced
+    ```
 
 5. Remove the application using the CLI
 
-```bash
-$ argocd app delete amq-streams-test
+    ```bash
+    $ argocd app delete amq-streams-test
 
-Are you sure you want to delete 'amq-streams-test' and all its resources? [y/n]
-```
+    Are you sure you want to delete 'amq-streams-test' and all its resources? [y/n]
+    ```
 
 ### Deploy using Web Console
 
 Out of Scope
 
-## Deploy AMQ Streams clusters (two environments)
+## Deploy AMQ Streams Environments
 
-```bash
-$ argocd proj create amq-streams-project
+Name:                        default
+Description:                 
+Destinations:                *,*
+Repositories:                *
+Allowed Cluster Resources:   */*
+Denied Namespaced Resources: <none>
+Signature keys:              <none>
+Orphaned Resources:          disabled
 
-$ argocd app create \
-  --name amq-streams-dev \
-  --dest-namespace amq-streams-dev \
-  --dest-server https://kubernetes.default.svc \
-  --project amq-streams-project \
-  --repo https://github.com/ryanezil/amqstreams-argocd.git \
-  --path amq-streams/overlays/dev \
-  --revision main \
-  --sync-policy automated \
-  --auto-prune \
-  --sync-option CreateNamespace=true
 
-$ argocd app create \
-  --name amq-streams-test \
-  --dest-namespace amq-streams-test \
-  --dest-server https://kubernetes.default.svc \
-  --project amq-streams-project \
-  --repo https://github.com/ryanezil/amqstreams-argocd.git \
-  --path amq-streams/overlays/test \
-  --revision main \
-  --sync-policy automated \
-  --auto-prune \
-  --sync-option CreateNamespace=true
-```
+1. Create new ArgoCD project.
+
+    The following commands create two new projects with the same configuration as the 'default' project.
+
+    **DEV environment**
+
+    ```bash
+    $ argocd proj create amq-streams-dev --description 'AMQ Streams DEV'
+
+    $ argocd proj add-source amq-streams-dev '*'
+    $ argocd proj add-destination amq-streams-dev '*' '*'
+    $ argocd proj allow-cluster-resource amq-streams-dev '*' '*'
+    ```
+    **TEST environment**
+
+    ```bash
+    $ argocd proj create amq-streams-test --description 'AMQ Streams TEST'
+
+    $ argocd proj add-source amq-streams-test '*'
+    $ argocd proj add-destination amq-streams-test '*' '*'
+    $ argocd proj allow-cluster-resource amq-streams-test '*' '*'
+    ```
+
+2. Check project information
+
+    ```bash
+    $ argocd proj get amq-streams-test
+    ```
+
+3. Deploy AMQ Streams clusters
+
+    ```bash
+    $ argocd app create \
+      --name amq-streams-dev \
+      --dest-namespace amq-streams-dev \
+      --dest-server https://kubernetes.default.svc \
+      --project amq-streams-dev \
+      --repo https://github.com/ryanezil/amqstreams-argocd.git \
+      --path amq-streams/overlays/dev \
+      --revision main \
+      --sync-policy automated \
+      --auto-prune \
+      --sync-option CreateNamespace=true
+
+    $ argocd app create \
+      --name amq-streams-test \
+      --dest-namespace amq-streams-test \
+      --dest-server https://kubernetes.default.svc \
+      --project amq-streams-test \
+      --repo https://github.com/ryanezil/amqstreams-argocd.git \
+      --path amq-streams/overlays/test \
+      --revision main \
+      --sync-policy automated \
+      --auto-prune \
+      --sync-option CreateNamespace=true
+    ```
 
 ## Managing Users and Topics
 
