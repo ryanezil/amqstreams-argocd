@@ -278,12 +278,45 @@ Are you sure you want to delete 'amq-streams-test' and all its resources? [y/n]
 
 Out of Scope
 
+## Deploy AMQ Streams clusters (two environments)
 
+```bash
+$ argocd proj create amq-streams-project
+
+$ argocd app create \
+  --name amq-streams-dev \
+  --dest-namespace amq-streams-dev \
+  --dest-server https://kubernetes.default.svc \
+  --project amq-streams-project \
+  --repo https://github.com/ryanezil/amqstreams-argocd.git \
+  --path amq-streams/overlays/dev \
+  --revision main \
+  --sync-policy automated \
+  --auto-prune \
+  --sync-option CreateNamespace=true
+
+$ argocd app create \
+  --name amq-streams-test \
+  --dest-namespace amq-streams-test \
+  --dest-server https://kubernetes.default.svc \
+  --project amq-streams-project \
+  --repo https://github.com/ryanezil/amqstreams-argocd.git \
+  --path amq-streams/overlays/test \
+  --revision main \
+  --sync-policy automated \
+  --auto-prune \
+  --sync-option CreateNamespace=true
+```
 
 ## Managing Users and Topics
 
-WIP: how to manage AMQ Streams user for every different application using topics.
+How to manage users and topics, for every different application working with AMQ Streams.
 
+Now the parameter ```--sync-option CreateNamespace=true``` is not used: target namespace must be created when the cluster is deployed.
+
+### Test environment
+
+* **Application 1 resources**
 
 ```bash
 $ argocd app create \
@@ -293,6 +326,23 @@ $ argocd app create \
   --project default \
   --repo https://github.com/ryanezil/amqstreams-argocd.git \
   --path amq-streams-applications/application1 \
+  --directory-recurse \
+  --revision main \
+  --sync-policy automated \
+  --auto-prune
+```
+
+* **Application 2 resources**
+
+```bash
+$ argocd app create \
+  --name amq-streams-test-application2 \
+  --dest-namespace amq-streams-test \
+  --dest-server https://kubernetes.default.svc \
+  --project default \
+  --repo https://github.com/ryanezil/amqstreams-argocd.git \
+  --path amq-streams-applications/application2 \
+  --directory-recurse \
   --revision main \
   --sync-policy automated \
   --auto-prune

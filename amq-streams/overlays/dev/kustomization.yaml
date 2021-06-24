@@ -1,4 +1,4 @@
-namespace: amq-streams-test
+namespace: amq-streams-dev
 resources:
 - namespace.yaml
 - ../../base
