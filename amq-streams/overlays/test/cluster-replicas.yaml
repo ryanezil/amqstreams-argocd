@@ -1,0 +1,9 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: single-node-cluster
+spec:
+  kafka:
+    replicas: 2
+  zookeeper:
+    replicas: 2

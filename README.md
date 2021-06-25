@@ -1,8 +1,8 @@
 # amqstreams-argocd
 
-This project shows a quick start guide using Argo CD, deploying a very small AMQ Streams cluster (one single ZK and one single Kafka) using ArgoCD on OpenShift.
+This project is an example using Argo CD for deploying a very small AMQ Streams cluster on OpenShift.
 
-Also a basic approach for managing two clusters and different application resources is included.
+Also it shows a basic approach for managing two clusters and different application resources (users & topics).
 
 Since v2.0, Argo CD includes health checks for Strimzi CRDs:
 * Kafka
@@ -94,7 +94,7 @@ You should now be able to run argocd commands
 
 ### Login to ArgoCD
 
-Default creater username is ```admin```.
+Default username is ```admin```.
 
 ```bash
 $ ARGO_USER=admin
@@ -237,13 +237,13 @@ The following steps show hot to deploy an application using the command line.
 
 3. Create the application
 
-    You can see detailed parameters and example for this action, usin the command help:
+    You can see detailed parameters and examples for this action, usin the command help:
 
     ```bash
     $ argocd app create --help
     ```
 
-    The following CLI command will deploy the same application configuration that is defined above, in the Application Manifest.
+    The following CLI command will deploy the same application configuration that is defined above in the Application Manifest.
 
     ```bash
     $ argocd app create \
@@ -302,7 +302,7 @@ Out of Scope
 
 1. Create two ArgoCD projects: DEV and TEST.
 
-    The following commands create two new projects with the same configuration as the 'default' project.
+    The following commands create two new projects with the same configuration used for the 'default' Argo CD project.
 
     **DEV environment**
 
@@ -340,6 +340,10 @@ Out of Scope
 
 3. Deploy AMQ Streams clusters
 
+    TEST environment configuration is changing some of the ```base``` configuration values defined:
+    * Number of replicas for Zookeeper and Kafka is now 2 (base value is 1)
+    * Default number of partitions is 5 (base value is 3)
+
     ```bash
     # AMQ Streams DEV cluster
     $ argocd app create \
@@ -349,7 +353,7 @@ Out of Scope
       --project amq-streams-dev \
       --repo https://github.com/ryanezil/amqstreams-argocd.git \
       --path amq-streams/overlays/dev \
-      --revision develop \
+      --revision main \
       --sync-policy automated \
       --auto-prune \
       --sync-option CreateNamespace=true

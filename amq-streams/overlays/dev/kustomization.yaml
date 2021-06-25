@@ -1,6 +1,15 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: amq-streams-dev
+namespace: amq-streams-test
+# Append 'dev-' to all 'metadata.name' values in every resource.
+# namePrefix: test-
+commonLabels:
+  amq-environment: dev
+  my-custom-label: devcustomlabel
+commonAnnotations:
+  my-common-annotation: This is develop environment!
+
 resources:
 - namespace.yaml
+bases:
 - ../../base

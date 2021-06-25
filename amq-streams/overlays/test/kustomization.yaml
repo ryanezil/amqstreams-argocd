@@ -1,6 +1,20 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: amq-streams-test
+# Append 'test-' to all 'metadata.name' values in every resource.
+# namePrefix: test-
+commonLabels:
+  amq-environment: test
+  my-custom-label: testcustomlabel
+commonAnnotations:
+  my-common-annotation: This is test environment!
 resources:
 - namespace.yaml
+bases:
 - ../../base
+# Apply some different configuration values in TEST
+patchesStrategicMerge:
+# 2 replicas for Kafka & Zookeeper
+- cluster-replicas.yaml
+# 5 default partitions for every Kafka topic
+- cluster-kafka-config.yaml
