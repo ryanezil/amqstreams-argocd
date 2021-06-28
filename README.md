@@ -216,7 +216,7 @@ DXsdeiAbgrIzh3wtFcH1Sfmy2OV40MkR
 
 ### Deploy using CLI commands
 
-The following steps show hot to deploy an application using the command line.
+The following steps show how to deploy an application using the command line.
 
 1. Add remote application repository to ArgoCD
 
@@ -243,7 +243,7 @@ The following steps show hot to deploy an application using the command line.
     $ argocd app create --help
     ```
 
-    The following CLI command will deploy the same application configuration that is defined above in the Application Manifest.
+    The following CLI command will deploy the same application configuration that is defined above in the Application Manifest example.
 
     ```bash
     $ argocd app create \
@@ -299,6 +299,8 @@ The following steps show hot to deploy an application using the command line.
 Out of Scope
 
 ## Deploy AMQ Streams Environments
+
+You can create a project using a ```AppProject``` resource instead of using cli commands. See the link: https://argoproj.github.io/argo-cd/operator-manual/declarative-setup/#app-of-apps
 
 1. Create two ArgoCD projects: DEV and TEST.
 
