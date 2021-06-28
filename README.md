@@ -17,6 +17,12 @@ There are two available YAML files in the repository for installing both operato
 * AMQ Streams operator: ```install-amqs-operator.yaml```
 * OpenShift GitOps operator: ```install-gitops-operator.yaml```
 
+```bash
+$ oc create -f install-gitops-operator.yaml
+
+subscription.operators.coreos.com/openshift-gitops-operator created
+```
+
 After RH OpenShift GitOps operator is installed, you can find a new project recently created:
 
 ```bash
@@ -105,6 +111,10 @@ $ ARGO_PASS=$(oc get secret/openshift-gitops-cluster -n openshift-gitops -o json
 
 $ argocd login $ARGO_ROUTE --insecure --username $ARGO_USER --password $ARGO_PASS
 ```
+
+#### Configure SSO
+
+> Read the this [OpenShift blog](https://www.openshift.com/blog/sso-integration-for-the-openshift-gitops-operator) showing a step-by-step guide on using Red Hat Single Sign-On(RHSSO) to log in to an Argo CD application 
 
 ### Check Managed clusters
 
@@ -300,6 +310,16 @@ Out of Scope
 
 ## Deploy AMQ Streams Environments
 
+Projects provide a logical grouping of applications, which is useful when Argo CD is used by multiple teams. Projects provide the following features:
+
+
+* restrict what may be deployed (trusted Git source repositories)
+* restrict where apps may be deployed to (destination clusters and namespaces)
+* restrict what kinds of objects may or may not be deployed (e.g. RBAC, CRDs, DaemonSets, NetworkPolicy etc...)
+* defining project roles to provide application RBAC (bound to OIDC groups and/or JWT tokens)
+
+> **Source:** Argo CD Projects [documentation](https://argoproj.github.io/argo-cd/user-guide/projects/).
+
 You can create a project using a ```AppProject``` resource instead of using cli commands. See the link: https://argoproj.github.io/argo-cd/operator-manual/declarative-setup/#app-of-apps
 
 1. Create two ArgoCD projects: DEV and TEST.
@@ -340,7 +360,62 @@ You can create a project using a ```AppProject``` resource instead of using cli 
     Orphaned Resources:          disabled
     ```
 
-3. Deploy AMQ Streams clusters
+3. Check OpenShift project resource
+
+    ```bash
+    $ oc describe appproject amq-streams-dev -n openshift-gitops
+    ```
+
+    Output:
+
+    ```bash
+    Name:         amq-streams-dev
+    Namespace:    openshift-gitops
+    Labels:       <none>
+    Annotations:  <none>
+    API Version:  argoproj.io/v1alpha1
+    Kind:         AppProject
+    Metadata:
+      Creation Timestamp:  2021-06-28T15:26:01Z
+      Generation:          4
+      Managed Fields:
+        API Version:  argoproj.io/v1alpha1
+        Fields Type:  FieldsV1
+        fieldsV1:
+          f:spec:
+            .:
+            f:clusterResourceWhitelist:
+            f:description:
+            f:destinations:
+            f:sourceRepos:
+          f:status:
+        Manager:         argocd-server
+        Operation:       Update
+        Time:            2021-06-28T15:26:11Z
+      Resource Version:  145067
+      Self Link:         /apis/argoproj.io/v1alpha1/namespaces/openshift-gitops/appprojects/amq-streams-dev
+      UID:               2d61c1da-4ba5-4b30-ad54-d53dce0607e0
+    Spec:
+      Cluster Resource Whitelist:
+        Group:      *
+        Kind:       *
+      Description:  AMQ Streams DEV
+      Destinations:
+        Namespace:  *
+        Server:     *
+      Source Repos:
+        *
+    Status:
+    Events:
+      Type    Reason           Age   From           Message
+      ----    ------           ----  ----           -------
+      Normal  ResourceCreated  60m   argocd-server  admin created project
+      Normal  ResourceUpdated  60m   argocd-server  admin updated project
+      Normal  ResourceUpdated  60m   argocd-server  admin updated project
+      Normal  ResourceUpdated  60m   argocd-server  admin updated project
+    ```
+
+4. Deploy AMQ Streams clusters
 
     TEST environment configuration is changing some of the ```base``` configuration values defined:
     * Number of replicas for Zookeeper and Kafka is now 2 (base value is 1)
@@ -390,7 +465,7 @@ Only ```Application 1``` is available in TEST.
 
 ```bash
 $ argocd app create \
-  --name amq-streams-application1 \
+  --name amq-streams-application1-test \
   --dest-namespace amq-streams-test \
   --dest-server https://kubernetes.default.svc \
   --project amq-streams-test \
@@ -412,7 +487,7 @@ Both ```Application 1``` and ```Application 2``` are available in DEVELOP. Addit
 
 ```bash
 $ argocd app create \
-  --name amq-streams-application1 \
+  --name amq-streams-application1-dev \
   --dest-namespace amq-streams-dev \
   --dest-server https://kubernetes.default.svc \
   --project amq-streams-dev \
@@ -428,7 +503,7 @@ $ argocd app create \
 
 ```bash
 $ argocd app create \
-  --name amq-streams-application2 \
+  --name amq-streams-application2-dev \
   --dest-namespace amq-streams-dev \
   --dest-server https://kubernetes.default.svc \
   --project amq-streams-dev \
