@@ -514,3 +514,5 @@ $ argocd app create \
   --sync-policy automated \
   --auto-prune
 ```
+
+![Dev environment](./images/argo-cd.png "DEV environment")
